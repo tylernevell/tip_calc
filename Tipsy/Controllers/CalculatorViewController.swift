@@ -11,6 +11,9 @@ import UIKit
 class CalculatorViewController: UIViewController {
     
     var tipAmount = 0.1
+    var billTotal = 0.0
+    var totalPeople = 0
+    var result = "0.0"
     
     @IBOutlet weak var billTextField: UITextField!
     @IBOutlet weak var zeroPctButton: UIButton!
@@ -36,18 +39,41 @@ class CalculatorViewController: UIViewController {
         
         // calculate the bugger
         tipAmount = buttonValue / 100
+        
+        billTextField.endEditing(true)
     }
     
     
     @IBAction func stepperValueChanged(_ sender: UIStepper) {
         splitNumberLabel.text = String(format: "%.0f", sender.value)
+        totalPeople = Int(sender.value)
     }
     
     
     @IBAction func calculatePressed(_ sender: UIButton) {
         // print our tip percentage
-        print(tipAmount)
-        print(splitNumberLabel.text!)
+//        print(tipAmount)
+//        print(splitNumberLabel.text!)
+//        print(billTextField.text!)
+        let bill = billTextField.text!
+        
+        if bill != "" {
+            billTotal = Double(bill)!
+            result = String(format: "%.2f", (billTotal * (tipAmount + 1.0)) / Double(totalPeople))
+        }
+        
+        self.performSegue(withIdentifier: "goToResult", sender: self)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToResult" {
+            // as! to force downcast to ResultViewController, the subclass of Viewcontroller
+            let destinationVC = segue.destination as! ResultsViewController
+            destinationVC.numberOfPeople = totalPeople
+            destinationVC.tipPct = tipAmount
+            destinationVC.result = result
+            
+        }
     }
 }
 
